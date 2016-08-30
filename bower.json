@@ -1,5 +1,5 @@
 {
-  "name": "image-slider",
+	"name": "image-slider",
 	"version": "0.5.1",
 	"authors": [
     "MGRProgramming <MGRProgramming@gmail.com>"
@@ -7,9 +7,9 @@
   "description": "image slider with vanilla javascript and css",
 	"keywords": [
     "Polymer",
-    "web-components"
-		"pictures"
-		"slider"
+    "web-components",
+    "pictures",
+    "slider"
   ],
 	"license": "MIT",
   "main": "image-slider.html",
