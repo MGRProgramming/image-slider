@@ -1,0 +1,240 @@
+<!--for deployment as webcomponent:-->
+<link rel="import" href="../polymer/polymer.html">
+<!--for local development:-->
+<!--<link rel="import" href="bower_components/polymer/polymer.html">-->
+
+
+<!--
+`image-slider` 
+
+image slider with vanilla javascript and css
+
+@demo demo/index.html 
+
+For performance reason, this component just uses webcomponents-lite.js and polymer.html for fast loading times.
+
+Can progress automatically (when given timer < 0), manually by clicking forward, backward or indicator or by external call.
+
+Transition between pictures: opacity 1s ease.
+
+Currently fixed ratio of 10x15 - pictures are cropped to cover area
+
+TODO: 
+- external definition of ratio
+- accessibility
+- swipe
+
+-->
+
+
+<dom-module id="image-slider">
+  <template>
+    <style>
+			:host {
+				display: block;
+			}
+			.container {
+				width: 100%;
+				position:relative;
+			}
+			.container::after {
+				padding-top: 66.7%;
+				/* 15:10 ratio */
+				display: block;
+				content: '';
+			}
+			.slide {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				opcity: 1;
+				transition: opacity 1s ease;
+			}
+			.hidden {
+				opacity: 0;
+			}
+
+			/* contains arrows and dots */
+			.navigation {
+				display: flex;
+				flex-direction: row;
+				position: absolute;
+				left:0;
+				top:0;
+				width:100%;
+				height: 100%;
+			}
+			/* arrows to move throug sildes forward and backward */
+			.arrow {
+				font-size: 30px;
+				padding: 0 32px;
+				color: #fff;
+				height: 100%;
+				transition: background-color 0.3s;
+				display: flex;
+				align-items: center;
+			}
+			.arrow:hover {
+				opacity: 0.7;
+				background-color: rgba(169, 169, 169, 7)
+			}
+			.backwards {
+				left: 0;
+			}
+			.forwards {
+				right: 0;
+			}
+			.dots {
+				flex: 1;
+				align-self: flex-end;
+				text-align: center;
+				padding-bottom: 20px;
+			}
+			/* indicator for number of slides and which slide is selected (.white) */
+			.dot {
+				display: inline-block;
+				height: 13px;
+				width: 13px;
+				border: 1px solid #ccc;
+				cursor: pointer;
+				border-radius: 50%;
+				opacity: 1;
+				background-color: transparent;
+			}
+			.dot:hover {
+				background-color: #808080;
+			}
+			.white {
+				/* assigned when corresponding slide is selected*/
+				background-color: #fff;
+			}
+    </style>
+		<div class="container">
+			<template is="dom-repeat" 
+								items="{{images}}"> 
+				<img index="{{index}}" 
+						 src$="{{_computeUrl(item.file)}}"
+						 alt="{{item.alt}}"
+						 class$="{{_opacity(item.show)}}" >
+			</template>
+			<div class="navigation">
+				<div class="arrow backwards" on-tap="previousSlide">&#10094;</div>
+				<div class="dots">
+					<template is="dom-repeat" items="{{images}}">
+						<!-- dots indicating/selecting slide that is displayed -->
+						<span on-tap="_gotoSlide" class$="{{_dotClass(item.show)}}"></span>
+					</template>
+				</div>
+				<div class="arrow forwards" on-tap="nextSlide">&#10095;</div>
+			</div>
+		</div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'image-slider',
+
+			properties: {
+				// intervall in ms - starts auto-progress if != 0
+				timer: {
+					type: Number,
+				},
+				/**
+				* image details
+				*
+				* Array [{'file':'filename', 'alt':'description'},...]
+				*/
+				images: {
+					type: Array,
+					observer: '_refresh'	//when images loaded as parameters
+				},
+				// base url for images (when images are just filenames without directory)
+				imgBaseDir: {
+					type: String,
+					value: ''
+				},
+				// based on images-Array plus paramter 'show' as indicator to be shown or not
+				_slides: {
+					type: Array,
+				},
+				// currently selected slide
+				slideIndex: {
+					type: Number, 
+					value: 1
+				},
+			},
+			
+			// show inital slide and start timer
+			_refresh: function() {
+				// show inital slide (slideIndex, default = 1)
+				this._updateSlides();
+				// start auto-progress if timer is given
+				if (this.timer) {
+					tmpThis = this;
+					setInterval(function(){tmpThis.nextSlide();}, this.timer);
+				}
+			},
+			_computeUrl: function(file) {
+				return this.imgBaseDir + file;
+			},
+			// forward to next slide or start of slides
+			nextSlide: function() {
+				this.slideIndex++;
+				if (this.slideIndex > this.images.length) {
+					//end of array - go to start
+					this.slideIndex = 1;
+				}
+				this._updateSlides();
+			},
+			// rewind to previous slide or end of slides
+			previousSlide: function() {
+				this.slideIndex--;
+				if (this.slideIndex < 1) {
+					//reached start of array - go to end
+					this.slideIndex = this.images.length;
+				}
+				this._updateSlides();
+			},
+			// go to specific slide when circle is tapped
+			_gotoSlide: function(e) {
+				// when slide is selected by dot
+				this.slideIndex = e.model.index+1;
+				this._updateSlides();
+			},
+			// jump to slide
+			gotoSlide: function(n) {
+				// for external manipulation
+				console.log('gotoslide external call');
+				this.slideIndex = n;
+				this._updateSlides();
+			},
+			// updates 'show' parameter in slides 
+			// (which in turn adds / removes hidden class with opacity)
+			_updateSlides: function() {
+				for (var i=0; i<this.images.length; i++) {
+					this.set('images.'+i+'.show', null);
+				}
+				this.set('images.'+(this.slideIndex-1)+'.show', true);
+			},
+			// adds and removes opacity class - for use with transition effect)
+			_opacity: function(show) {
+				if (show) {
+					return 'slide';
+				} else {
+					return 'slide hidden';
+				}
+			},
+			// adds and removes white class / white background for indicator of currently selected slide
+			_dotClass: function(show) {
+				if (show) {
+					return 'dot white';
+				} else {
+					return 'dot';
+				}
+			}
+
+    });
+  </script>
+</dom-module>

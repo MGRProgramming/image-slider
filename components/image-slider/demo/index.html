@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <title>image-slider demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+
+    <link rel="import" href="../image-slider.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+
+    <div class="vertical-section-container centered">
+      <h3>Basic image-slider Demo</h3>
+      <demo-snippet>
+        <template>
+          <image-slider images = '[
+																	{"file" : "pic1.jpg", "alt":"field"},
+																	{"file" : "pic5.jpg", "alt":"forest"},
+																	{"file" : "pic2.jpg", "alt":"bee"},
+																	{"file" : "pic3.jpg", "alt":"flowers"}
+																	]'
+												img-base-dir = "images/"
+												>
+					</image-slider>
+        </template>
+      </demo-snippet>
+			<p>Pictures: <a href="//pixabay.com" target="_blank">pixabay.com</a></p>
+    </div>
+  </body>
+</html>
