@@ -141,7 +141,11 @@ TODO:
 				timer: {
 					type: Number,
 				},
-				// image details
+				/**
+				* image details
+				*
+				* Array [{'file':'filename', 'alt':'description'},...]
+				*/
 				images: {
 					type: Array,
 					observer: '_refresh'	//when images loaded as parameters
