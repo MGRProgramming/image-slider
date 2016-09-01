@@ -1,4 +1,7 @@
+<!--for deployment as webcomponent:-->
 <link rel="import" href="../polymer/polymer.html">
+<!--for local development:-->
+<!--<link rel="import" href="bower_components/polymer/polymer.html">-->
 
 
 <!--
@@ -53,36 +56,46 @@ TODO:
 			}
 
 			/* contains arrows and dots */
-			.footer {
-				text-align: center;
+			.navigation {
+				display: flex;
+				flex-direction: row;
 				position: absolute;
 				left:0;
-				bottom:0;
+				top:0;
 				width:100%;
+				height: 100%;
 			}
 			/* arrows to move throug sildes forward and backward */
 			.arrow {
 				font-size: 30px;
-				padding: 32px;
+				padding: 0 32px;
 				color: #fff;
-				border-radius: 50%;
+				height: 100%;
+				transition: background-color 0.3s;
+				display: flex;
+				align-items: center;
 			}
 			.arrow:hover {
-				color: #808080;
+				opacity: 0.7;
+				background-color: rgba(169, 169, 169, 7)
 			}
 			.backwards {
-				float: left;
+				left: 0;
 			}
 			.forwards {
-				float: right;
+				right: 0;
+			}
+			.dots {
+				flex: 1;
+				align-self: flex-end;
+				text-align: center;
+				padding-bottom: 20px;
 			}
 			/* indicator for number of slides and which slide is selected (.white) */
 			.dot {
 				display: inline-block;
 				height: 13px;
 				width: 13px;
-				margin-top: 50px;
-				text-align: center;
 				border: 1px solid #ccc;
 				cursor: pointer;
 				border-radius: 50%;
@@ -105,13 +118,15 @@ TODO:
 						 alt="{{item.alt}}"
 						 class$="{{_opacity(item.show)}}" >
 			</template>
-			<div class="footer">
+			<div class="navigation">
 				<div class="arrow backwards" on-tap="previousSlide">&#10094;</div>
+				<div class="dots">
+					<template is="dom-repeat" items="{{images}}">
+						<!-- dots indicating/selecting slide that is displayed -->
+						<span on-tap="_gotoSlide" class$="{{_dotClass(item.show)}}"></span>
+					</template>
+				</div>
 				<div class="arrow forwards" on-tap="nextSlide">&#10095;</div>
-				<template is="dom-repeat" items="{{images}}">
-					<!-- dots indicating/selecting slide that is displayed -->
-					<span on-tap="_gotoSlide" class$="{{_dotClass(item.show)}}"></span>
-				</template>
 			</div>
 		</div>
   </template>
